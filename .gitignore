@@ -1,0 +1,25 @@
+# Visual Studio / .NET
+.vs/
+.idea/
+bin/
+obj/
+dist/
+dist-*/
+publish/
+artifacts/
+*.user
+*.suo
+*.log
+
+# Node (none expected, defensive)
+node_modules/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit credentials
+*.env
+.env.*
+*.pfx
+*.key

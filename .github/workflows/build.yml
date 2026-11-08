@@ -1,0 +1,63 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Windows executables
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish (framework-dependent)
+        run: dotnet publish src/NthMacroStudio/NthMacroStudio.csproj -c Release -r win-x64 --self-contained false -o dist
+
+      - name: Publish (self-contained)
+        run: dotnet publish src/NthMacroStudio/NthMacroStudio.csproj -c Release -r win-x64 --self-contained true -o dist-sc
+
+      - name: Zip framework-dependent
+        shell: pwsh
+        run: Compress-Archive -Path "dist/*" -DestinationPath "NTH-Macro-Studio-win-x64.zip" -Force
+
+      - name: Zip self-contained
+        shell: pwsh
+        run: Compress-Archive -Path "dist-sc/*" -DestinationPath "NTH-Macro-Studio-win-x64-selfcontained.zip" -Force
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NTH-Macro-Studio-builds
+          path: |
+            NTH-Macro-Studio-win-x64.zip
+            NTH-Macro-Studio-win-x64-selfcontained.zip
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: NTH-Macro-Studio-builds
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            NTH-Macro-Studio-win-x64.zip
+            NTH-Macro-Studio-win-x64-selfcontained.zip
+          generate_release_notes: true

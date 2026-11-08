@@ -1,6 +1,13 @@
 # NTH Macro Studio
 
 <p align="center">
+  <a href="https://github.com/flexyfresh8-prog/nth-macro-studio/actions/workflows/build.yml"><img src="https://github.com/flexyfresh8-prog/nth-macro-studio/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
+  <img src="https://img.shields.io/badge/platform-Windows%2010%2F11-0078d4" alt="Windows 10/11">
+  <img src="https://img.shields.io/badge/.NET-8.0-512bd4" alt=".NET 8">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license">
+</p>
+
+<p align="center">
   <img src="docs/screenshots/dashboard.png" alt="NTH Macro Studio dashboard" width="960">
 </p>
 

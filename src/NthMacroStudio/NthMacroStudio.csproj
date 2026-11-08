@@ -15,6 +15,7 @@
     <Company>NTH Studio</Company>
     <Authors>NTH Macro Studio Contributors</Authors>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <DebugType>embedded</DebugType>
   </PropertyGroup>

@@ -76,7 +76,7 @@ Full protocol documentation: [`docs/BRIDGE.md`](docs/BRIDGE.md).
 ## Build from source
 
 ```powershell
-git clone https://github.com/<you>/nth-macro-studio.git
+git clone https://github.com/flexyfresh8-prog/nth-macro-studio.git
 cd nth-macro-studio
 .\build.ps1                 # → dist\NTH Macro Studio.exe
 .\build.ps1 -SelfContained  # → standalone build

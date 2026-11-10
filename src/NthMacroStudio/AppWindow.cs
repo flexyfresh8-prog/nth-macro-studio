@@ -30,10 +30,24 @@ namespace NthMacroStudio
             MinimumSize = new System.Drawing.Size(1180, 740);
             StartPosition = FormStartPosition.CenterScreen;
             BackColor = System.Drawing.Color.FromArgb(11, 14, 20);
-            Icon = System.Drawing.SystemIcons.Application;
+            Icon = LoadAppIcon();
             Controls.Add(_webView);
             Shown += OnShownAsync;
             FormClosing += OnFormClosing;
+        }
+
+        private static System.Drawing.Icon LoadAppIcon()
+        {
+            try
+            {
+                var icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                if (icon != null) return icon;
+            }
+            catch
+            {
+                // Fall back to the generic application icon.
+            }
+            return System.Drawing.SystemIcons.Application;
         }
 
         protected override void OnHandleCreated(EventArgs e)

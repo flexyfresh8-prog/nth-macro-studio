@@ -163,6 +163,23 @@ namespace NthMacroStudio
                     Post("play:stopped", new { reason = "emergency" });
                     break;
 
+                case "app:openFolder":
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = MacroStore.Dir,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Post("app:error", new { message = "Could not open macros folder: " + ex.Message });
+                    }
+                    break;
+                }
+
                 case "settings:save":
                 {
                     var settings = payload.Deserialize<AppSettings>(MacroStore.Json);

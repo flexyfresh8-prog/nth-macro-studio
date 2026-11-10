@@ -74,7 +74,9 @@ Full protocol documentation: [`docs/BRIDGE.md`](docs/BRIDGE.md).
 
 ## Quick start (Windows)
 
-1. Download the release zip (or build it yourself below) and extract.
+1. Download the **[v1.01 release](https://github.com/flexyfresh8-prog/nth-macro-studio/releases/tag/v1.01)** zip (or build it yourself below) and extract.
+   - `NTH-Macro-Studio-win-x64.zip` — framework-dependent, ~1 MB (needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0))
+   - `NTH-Macro-Studio-win-x64-selfcontained.zip` — standalone, ~60 MB (no runtime install needed)
 2. Run **`NTH Macro Studio.exe`**.
    - Framework-dependent build: needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) and the [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) (preinstalled on Windows 11).
    - Self-contained build: needs only the WebView2 Runtime.

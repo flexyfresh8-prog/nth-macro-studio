@@ -1,0 +1,60 @@
+NTH MACRO STUDIO v2.01 — QUICK START
+====================================
+
+STARTING THE APP
+----------------
+1. Unzip this folder anywhere first (e.g. Desktop) — do NOT run the exe
+   from inside the .zip window.
+2. Double-click "NTH Macro Studio.exe".
+3. If a dialog says "WebView2 Runtime required": click OK, Microsoft's
+   installer page opens, run MicrosoftEdgeWebview2Setup.exe (free, ~2 min,
+   one time only), then start NTH Macro Studio again.
+
+WHAT THIS TOOL REALLY DOES (no placeholders)
+--------------------------------------------
+- Records real keyboard + mouse input system-wide (Windows low-level hooks,
+  armed only while you are recording).
+- Replays it for real (SendInput) with speed 0.25x-4x and 1/3/10/infinite loops.
+- Macros are saved as JSON files you own, in:
+  %AppData%\NTH Macro Studio\Macros
+- Global hotkeys work system-wide even when the window is hidden in the tray.
+
+FIRST MACRO IN 30 SECONDS
+-------------------------
+1. Press the big record button (or Ctrl+Alt+R), do something on screen,
+   press Ctrl+Alt+R again — the macro is saved automatically.
+2. Open MACROS (key 2), press play. Move the cursor over the target app
+   first if your macro clicks at fixed screen positions.
+
+RUN REQUIREMENTS (this .zip)
+----------------------------
+- Windows 10/11 x64
+- Microsoft Edge WebView2 Runtime — preinstalled on up-to-date Windows 10/11.
+  Missing? The app now shows a "WebView2 Runtime required" dialog with a
+  one-click link to the official installer, or download it directly:
+  https://go.microsoft.com/fwlink/p/?LinkId=2124703
+
+NO .NET WANTED?
+---------------
+Use the other zip: NTH-Macro-Studio-v2.01-win-x64-selfcontained.zip
+It bundles the .NET 8 runtime itself (still needs the WebView2 Runtime above).
+
+GLOBAL HOTKEYS (defaults, changeable in SETTINGS)
+-------------------------------------------------
+Ctrl+Alt+R   start / stop recording (works in any app)
+Ctrl+Alt+S   start / stop playback of the selected macro
+Ctrl+Alt+P   pause / resume playback
+Ctrl+Alt+X   EMERGENCY STOP — kills playback instantly, releases held keys
+
+IF STARTUP STILL FAILS
+----------------------
+Open the log at:
+  %LocalAppData%\NTHMacroStudio\logs\startup.log
+It records the exact WebView2 version found (or the reason it was not found).
+
+LEGITIMATE USE
+--------------
+NTH Macro Studio automates input with the official SendInput channel.
+No DLL injection, no memory access, no drivers, no network.
+Use it for repetitive tasks, form filling, testing and accessibility —
+only on computers and with software you are authorized to automate.

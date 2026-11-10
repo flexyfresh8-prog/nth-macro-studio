@@ -10,7 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>NTH Macro Studio</AssemblyName>
     <RootNamespace>NthMacroStudio</RootNamespace>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Product>NTH Macro Studio</Product>
     <Company>NTH Studio</Company>
     <Authors>NTH Macro Studio Contributors</Authors>
@@ -27,6 +27,7 @@
   <!-- The premium HTML/CSS/JS interface, shared with the browser preview. -->
   <ItemGroup>
     <Content Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="START-HERE.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

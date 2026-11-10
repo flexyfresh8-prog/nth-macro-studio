@@ -212,6 +212,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 #toasts{position:fixed;right:14px;bottom:44px;display:flex;flex-direction:column;gap:6px;z-index:50}
 .toast{background:var(--panel2);border:1px solid var(--line2);border-left:3px solid var(--txt);border-radius:8px;padding:8px 12px;font-size:10.5px;color:var(--txt);max-width:280px;animation:riseIn .22s ease backwards}
 .toast.err{border-left-color:var(--sil);color:var(--sil)}
+/* engine gate — shown whenever the real native engine is absent */
+#gate{position:fixed;inset:0;background:#0a0a0a;display:flex;align-items:center;justify-content:center;z-index:1000}
+#gate.hidden{display:none}
+.gate-box{max-width:470px;border:1px solid var(--line2);border-radius:12px;padding:28px 30px;background:var(--panel2);text-align:center}
+.gate-title{font-size:15px;letter-spacing:.35em;margin-bottom:12px;color:var(--txt)}
+.gate-box p{font-size:11.5px;color:var(--txt);margin:9px 0;line-height:1.65}
+.gate-kbd{border:1px solid var(--line2);border-radius:5px;padding:2px 7px;font-size:10.5px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -233,7 +240,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
     </nav>
     <div class="side-foot">
       <div class="eng" id="engChip"><span class="dot"></span><span id="engTxt">CONNECTING</span></div>
-      <div class="ver" id="verTxt">v2.0.0</div>
+      <div class="ver" id="verTxt">v2.0.2</div>
     </div>
   </aside>
 
@@ -243,7 +250,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
       <div class="top-right">
         <div class="chip">CPU <b id="cpuV">--</b></div>
         <div class="chip">RAM <b id="ramV">--</b></div>
-        <div class="chip mode" id="modeChip">PREVIEW</div>
+        <div class="chip mode" id="modeChip">OFFLINE</div>
       </div>
     </header>
 
@@ -420,7 +427,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
         </div>
         <div class="card about" style="margin-top:10px">
           <div class="lbl">ABOUT</div>
-          <p><b>NTH Macro Studio v2.0.0</b> — legitimate Windows automation for repetitive tasks: text expansion, form filling, UI testing, accessibility workflows. Recording uses low-level input hooks only while armed; playback uses SendInput, the standard user-session automation channel. No DLL injection, no memory access, no driver interposition, no network. Use only on machines and software where you are authorized to automate input.</p>
+          <p><b>NTH Macro Studio v2.0.2</b> — legitimate Windows automation for repetitive tasks: text expansion, form filling, UI testing, accessibility workflows. Recording uses low-level input hooks only while armed; playback uses SendInput, the standard user-session automation channel. No DLL injection, no memory access, no driver interposition, no network. Use only on machines and software where you are authorized to automate input.</p>
         </div>
       </section>
 
@@ -433,18 +440,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
   </main>
 </div>
 <div id="toasts"></div>
+<div id="gate" class="hidden">
+  <div class="gate-box">
+    <div class="gate-title">NTH MACRO STUDIO</div>
+    <p>This window is the interface only — it has <b>no engine of its own</b>.</p>
+    <p>The real recorder and player live in the Windows app.<br>
+       Run <span class="gate-kbd">NTH Macro Studio.exe</span> and this UI connects to it automatically.</p>
+    <p class="dim">real keyboard/mouse hooks &middot; real SendInput playback &middot; macros in %AppData%\NTH Macro Studio\Macros</p>
+    <p class="dim" id="gateNote"></p>
+  </div>
+</div>
 <script>
 /* ============================================================
-   NTH Macro Studio — monochrome UI v2.0.0
-   Talks the real WebView2 bridge; falls back to a mock engine
-   when opened in a plain browser (preview mode).
+   NTH Macro Studio — monochrome UI v2.0.2
+   Talks ONLY the real WebView2 bridge (the native engine inside
+   NTH Macro Studio.exe). It never fakes or simulates anything:
+   without the desktop app this page shows the gate notice.
    ============================================================ */
 "use strict";
 const $  = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
 const S = {
-  engine:false, preview:true, version:"-",
+  engine:false, version:"-",
   settings:null, macros:[],
   recording:false, recT0:0, recCount:0, lastRecording:null, monitoring:false,
   playing:null,           // {macroId,name}
@@ -504,7 +522,7 @@ function clearFeed(box, buf, msg){
 /* ---------------- bridge ---------------- */
 function send(type, payload={}){
   if(window.chrome?.webview){ window.chrome.webview.postMessage({type, payload}); }
-  else Mock.receive(type, payload);
+  // No engine in this context — the gate overlay covers the page; nothing to talk to.
 }
 function route(type, payload){
   try{ Handle(type, payload||{}); }
@@ -521,12 +539,13 @@ if(window.chrome?.webview){
 function Handle(type, p){
   switch(type){
     case "app:ready":
-      S.engine = true; S.preview = !!p.preview; S.version = p.version || "-";
+      S.engine = true; S.version = p.version || "-";
       S.settings = p.settings || S.settings;
-      $("#engChip").classList.add("live"); $("#engTxt").textContent = S.preview ? "PREVIEW ENGINE" : "ENGINE LIVE";
-      const mc = $("#modeChip"); mc.textContent = S.preview ? "PREVIEW" : "LIVE"; mc.classList.add("live");
+      $("#engChip").classList.add("live"); $("#engTxt").textContent = "ENGINE LIVE";
+      const mc = $("#modeChip"); mc.textContent = "LIVE"; mc.classList.add("live");
       $("#verTxt").textContent = "v" + S.version;
       $("#macrosPath").textContent = p.macrosPath || "";
+      const gate = $("#gate"); if(gate) gate.classList.add("hidden");
       applySettings();
       send("macro:list");
       break;
@@ -607,207 +626,6 @@ function Handle(type, p){
       break;
   }
 }
-
-/* ---------------- MOCK ENGINE (browser preview only) ---------------- */
-const Mock = {
-  macros:[], settings:null, rec:null, play:null, statsTimer:null,
-
-  init(){
-    try{ this.macros = JSON.parse(localStorage.getItem("nth.mono.macros")||"null") || null; }catch{ this.macros=null; }
-    if(!this.macros){
-      const now = new Date().toISOString();
-      this.macros = [
-        { id:"m_seed1", name:"Type greeting", description:"Types hello + Enter", tags:["demo"], hotkey:"",
-          speed:1, loops:1, createdAt:now, updatedAt:now, actions:[
-            { id:"a1", kind:"key", tMs:0, key:"h", mods:[], button:"left", x:0, y:0, delayMs:0, durationMs:45 },
-            { id:"a2", kind:"key", tMs:150, key:"i", mods:[], button:"left", x:0, y:0, delayMs:150, durationMs:45 },
-            { id:"a3", kind:"key", tMs:420, key:"enter", mods:[], button:"left", x:0, y:0, delayMs:270, durationMs:45 } ] },
-        { id:"m_seed2", name:"Open + position window", description:"Clicks taskbar then moves window", tags:["demo"], hotkey:"",
-          speed:1, loops:1, createdAt:now, updatedAt:now, actions:[
-            { id:"b1", kind:"click", tMs:0, key:"", mods:[], button:"left", x:120, y:140, delayMs:0, durationMs:55 },
-            { id:"b2", kind:"move", tMs:400, key:"", mods:[], button:"left", x:640, y:360, delayMs:400, durationMs:0 },
-            { id:"b3", kind:"click", tMs:700, key:"", mods:[], button:"left", x:640, y:360, delayMs:300, durationMs:55 } ] },
-        { id:"m_seed3", name:"Paste + enter", description:"Ctrl+V then Enter", tags:["demo"], hotkey:"",
-          speed:1, loops:1, createdAt:now, updatedAt:now, actions:[
-            { id:"c1", kind:"key", tMs:0, key:"v", mods:["ctrl"], button:"left", x:0, y:0, delayMs:0, durationMs:45 },
-            { id:"c2", kind:"key", tMs:260, key:"enter", mods:[], button:"left", x:0, y:0, delayMs:260, durationMs:45 } ] }
-      ];
-    }
-    try{ this.settings = JSON.parse(localStorage.getItem("nth.mono.settings")||"null"); }catch{ this.settings=null; }
-    this.settings ??= {
-      hotkeys:{ startStop:"Ctrl+Alt+S", pauseResume:"Ctrl+Alt+P", emergency:"Ctrl+Alt+X", record:"Ctrl+Alt+R" },
-      closeToTray:true, startWithWindows:false, accent:"mono", reduceMotion:false,
-      backgroundEffects:false, mouseMoveSampleMs:40, defaultSpeed:1, defaultLoops:1
-    };
-    this.statsTimer = setInterval(()=>{
-      route("sys:stats", { cpu: Math.round(6 + Math.random()*30), ram: Math.round(38 + Math.random()*22) });
-    }, 1000);
-    setTimeout(()=> route("app:ready", {
-      version:"2.0.0", platform:"preview", macrosPath:"C:\\Users\\you\\AppData\\Roaming\\NTH Macro Studio\\Macros (preview path)",
-      settings:this.settings, preview:true
-    }), 250);
-  },
-  persist(){
-    try{ localStorage.setItem("nth.mono.macros", JSON.stringify(this.macros));
-         localStorage.setItem("nth.mono.settings", JSON.stringify(this.settings)); }catch{}
-  },
-  receive(type, p){
-    setTimeout(()=> this.dispatch(type, p||{}), 60 + Math.random()*90);
-  },
-  dispatch(type, p){
-    switch(type){
-      case "macro:list": route("macro:list", { macros:this.macros }); break;
-      case "macro:save": {
-        const m = p.macro; if(!m) return;
-        const i = this.macros.findIndex(x=>x.id===m.id);
-        m.updatedAt = new Date().toISOString();
-        if(i>=0) this.macros[i]=m; else this.macros.unshift(m);
-        this.persist(); route("macro:saved", { macro:m }); break;
-      }
-      case "macro:delete":
-        this.macros = this.macros.filter(x=>x.id!==p.id); this.persist();
-        route("macro:deleted", { id:p.id }); break;
-      case "macro:export": {
-        const m = this.macros.find(x=>x.id===p.id);
-        route("macro:export", { id:p.id, json: m?JSON.stringify(m,null,2):"{}" }); break;
-      }
-      case "macro:import": {
-        try{
-          const m = JSON.parse(p.json);
-          if(!m || !Array.isArray(m.actions)) throw new Error("no actions array");
-          m.id = "m_" + Math.random().toString(16).slice(2,10);
-          m.updatedAt = new Date().toISOString();
-          this.macros.unshift(m); this.persist();
-          route("macro:imported", { macro:m });
-        }catch(err){ route("app:error", { message:"Import failed: "+err.message }); }
-        break;
-      }
-      case "record:start": this.recStart(p); break;
-      case "record:stop":  this.recStop(!!p.save); break;
-      case "play:start":   this.playStart(p); break;
-      case "play:stop":
-      case "play:emergency": this.playStop(type==="play:emergency"?"emergency":"user"); break;
-      case "settings:save":
-        this.settings = p.settings; this.persist();
-        route("settings:saved", { settings:this.settings }); break;
-      case "hotkey:set":
-        this.settings.hotkeys[p.slot] = p.combo; this.persist();
-        route("hotkey:set:result", { slot:p.slot, ok:true, combo:p.combo }); break;
-      case "app:openFolder":
-        toast("Preview mode — folder opens in the desktop app"); break;
-      default: break;
-    }
-  },
-
-  /* --- mock recorder: synthesizes a believable input script --- */
-  recStart(opts){
-    if(this.rec) return;
-    const script = [];
-    let t = 300;
-    const push = (kind, extra) => script.push(Object.assign({ kind, tMs:t }, extra));
-    push("mouseMove", { x:380, y:300 }); t += 240;
-    push("mouseDown", { button:"left", x:380, y:300 }); t += 90;
-    push("mouseUp",   { button:"left", x:380, y:300 }); t += 420;
-    for(const ch of "hello"){
-      push("keyDown", { key:ch, mods:[] }); t += 85 + Math.random()*55;
-      push("keyUp",   { key:ch, mods:[] }); t += 40;
-    }
-    t += 350;
-    push("mouseMove", { x:520, y:410 }); t += 260;
-    push("mouseDown", { button:"right", x:520, y:410 }); t += 80;
-    push("mouseUp",   { button:"right", x:520, y:410 }); t += 400;
-    this.rec = { opts, script, i:0, t0:Date.now(), timer:setInterval(()=>{
-      const el = Date.now() - this.rec.t0;
-      while(this.rec.i < this.rec.script.length && this.rec.script[this.rec.i].tMs <= el){
-        const ev = this.rec.script[this.rec.i++];
-        route("record:event", { event:ev });
-      }
-      if(this.rec.i >= this.rec.script.length){ /* keep arm live until user stops */ }
-    }, 40) };
-    route("record:started", {});
-  },
-  recStop(save){
-    if(!this.rec) return;
-    clearInterval(this.rec.timer);
-    const raw = this.rec.script.slice(0, this.rec.i);
-    const opts = this.rec.opts; this.rec = null;
-    const macro = this.buildMacro(raw, opts);
-    if(save && macro.actions.length){          // parity with Bridge: auto-save on stop
-      this.macros.unshift(macro);
-      this.persist();
-    }
-    route("record:stopped", { macro, saved:save });
-  },
-  buildMacro(raw, opts){
-    const acts = []; let prevT = 0, first = true;
-    for(let i=0; i<raw.length; i++){
-      const e = raw[i];
-      if(e.kind==="keyDown"){
-        let j=i+1; while(j<raw.length && !(raw[j].kind==="keyUp" && raw[j].key===e.key)) j++;
-        const up = raw[j];
-        const gap = first?0:Math.min(5000, Math.max(0, e.tMs-prevT));
-        acts.push({ id:"a"+acts.length, kind:"key", tMs:e.tMs, key:e.key, mods:e.mods||[], button:"left", x:0, y:0,
-          delayMs:gap, durationMs: up?Math.min(300,Math.max(30,up.tMs-e.tMs)):45 });
-        prevT = up?up.tMs:e.tMs; i = up?j:i; first=false;
-      } else if(e.kind==="mouseDown"){
-        let j=i+1; while(j<raw.length && raw[j].kind!=="mouseUp") j++;
-        const up = raw[j];
-        const gap = first?0:Math.min(5000, Math.max(0, e.tMs-prevT));
-        acts.push({ id:"a"+acts.length, kind:"click", tMs:e.tMs, key:"", mods:[], button:e.button, x:e.x, y:e.y,
-          delayMs:gap, durationMs: up?Math.min(300,Math.max(30,up.tMs-e.tMs)):55 });
-        prevT = up?up.tMs:e.tMs; i = up?j:i; first=false;
-      } else if(e.kind==="mouseMove" && opts?.captureMouseMoves){
-        acts.push({ id:"a"+acts.length, kind:"move", tMs:e.tMs, key:"", mods:[], button:"left", x:e.x, y:e.y,
-          delayMs:first?0:Math.min(5000,Math.max(0,e.tMs-prevT)), durationMs:0 });
-        prevT = e.tMs; first=false;
-      }
-    }
-    return { id:"m_"+Math.random().toString(16).slice(2,10), name:"Recording "+new Date().toLocaleString(),
-      description:"Recorded in preview mode", tags:["recording"], hotkey:"", speed:1, loops:1,
-      createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), actions:acts };
-  },
-
-  /* --- mock player --- */
-  playStart(p){
-    if(this.play) this.playStop("user");
-    const m = this.macros.find(x=>x.id===p.macroId);
-    if(!m || !m.actions.length){ route("app:error",{message:"Macro has no actions"}); return; }
-    const speed = p.speed>0 ? p.speed : 1;
-    const loops = p.loops>0 ? p.loops : Infinity;
-    const token = { cancelled:false };
-    this.play = { token, macroId:m.id, name:m.name };
-    route("play:started", { macroId:m.id });
-    const t0 = Date.now();
-    const runLoop = loop => {
-      let i = 0;
-      const step = () => {
-        if(token.cancelled) return;
-        if(i >= m.actions.length){
-          if(loop < loops){ runLoop(loop+1); } else {
-            route("play:progress", { macroId:m.id, index:m.actions.length-1, total:m.actions.length, loop, loops:loops===Infinity?0:loops, elapsedMs:Date.now()-t0, action:null, status:"done" });
-            this.play = null;
-          }
-          return;
-        }
-        const a = m.actions[i];
-        setTimeout(()=>{
-          if(token.cancelled) return;
-          route("play:progress", { macroId:m.id, index:i, total:m.actions.length, loop, loops:loops===Infinity?0:loops, elapsedMs:Date.now()-t0, action:a, status:"running" });
-          i++; step();
-        }, Math.max(0,(a.delayMs||0))/speed);
-      };
-      step();
-    };
-    runLoop(1);
-  },
-  playStop(reason){
-    if(!this.play) return;
-    this.play.token.cancelled = true;
-    const { macroId } = this.play; this.play = null;
-    route("play:progress", { macroId, index:0, total:0, loop:0, loops:0, elapsedMs:0, action:null, status:"stopped" });
-    route("play:stopped", { reason });
-  }
-};
 
 /* ---------------- nav / router ---------------- */
 const TITLES = { home:"HOME", macros:"MACROS", settings:"SETTINGS", stats:"STATISTICS", extras:"EXTRAS" };
@@ -912,7 +730,7 @@ setInterval(()=>{
     const up = Date.now() - S.session.t0;
     $("#homeTimer").textContent = fmtShort(up);
     if(!S.recording && !S.playing) $("#footTxt").textContent =
-      S.engine ? "Idle — engine ready" : "Idle — preview engine";
+      S.engine ? "Idle — engine ready" : "Idle — waiting for engine";
     const su = $("#sUp"); if(su) su.textContent = fmtShort(up);
   }
   $("#homeEvents").textContent = S.session.events + " events";
@@ -1200,7 +1018,17 @@ function updateGuards(){
 }
 
 /* ---------------- boot ---------------- */
-Mock.init();
+function showGate(note){
+  const g = $("#gate"); if(!g) return;
+  g.classList.remove("hidden");
+  const n = $("#gateNote"); if(n) n.textContent = note || "";
+}
+if(window.chrome?.webview){
+  send("app:hello");   // the native engine answers app:ready and unlocks the UI
+  setTimeout(()=>{ if(!S.engine) showGate("engine did not answer — restart NTH Macro Studio.exe"); }, 5000);
+}else{
+  showGate("opened outside the desktop app — there is no engine here, by design");
+}
 go((location.hash||"#home").slice(1));
 updateGuards();
 </script>

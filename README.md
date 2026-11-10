@@ -37,9 +37,11 @@
 | --- | --- |
 | ![Settings](docs/screenshots/settings.png) | ![Extras](docs/screenshots/extras.png) |
 
-## Browser preview (no install)
+## No mock, no preview — one real engine
 
-Open **`preview/index.html`** in any browser. It is the identical UI running against a built-in mock engine (clearly badged **PREVIEW** in the top bar) so you can try the flow — but only the Windows app captures system-wide input and replays it for real.
+This project ships **exactly one engine**: the native Windows one (hooks + SendInput) inside `NTH Macro Studio.exe`. There is no demo mode and no browser simulation. If you open `preview/index.html` (the same UI file) outside the desktop app, it shows a gate notice instead of pretending to work:
+
+![Engine gate](docs/screenshots/browser-gate.png)
 
 ## Architecture
 
@@ -71,11 +73,11 @@ Full protocol documentation: [`docs/BRIDGE.md`](docs/BRIDGE.md).
 
 ## Quick start (Windows)
 
-1. Download the **[v2.00 release](https://github.com/flexyfresh8-prog/nth-macro-studio/releases/tag/v2.00)** zip (or build it yourself below) and extract.
-   - `NTH-Macro-Studio-v2.00-win-x64.zip` — framework-dependent, ~0.7 MB (needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0))
-   - `NTH-Macro-Studio-v2.00-win-x64-selfcontained.zip` — standalone ~60 MB, no runtime install needed
+1. Download the **[v2.02 release](https://github.com/flexyfresh8-prog/nth-macro-studio/releases/tag/v2.02)** zip (or build it yourself below) and extract.
+   - `NTH-Macro-Studio-win-x64.zip` — framework-dependent, ~0.7 MB (needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0))
+   - `NTH-Macro-Studio-win-x64-selfcontained.zip` — standalone ~64 MB, no .NET install needed
 2. Run **`NTH Macro Studio.exe`**.
-   - WebView2 Runtime is preinstalled on up-to-date Windows 10/11; if missing, the app shows a download link on first launch.
+   - WebView2 Runtime is preinstalled on up-to-date Windows 10/11; if missing, the app shows a **WebView2 Runtime required** dialog with a one-click link to Microsoft's installer.
 3. Press **● START RECORDING** (or `Ctrl+Alt+R` anywhere in Windows), do some typing/clicking, press **■ STOP & SAVE** — the macro is saved automatically. Open **MACROS** (key `2`) and press ▶.
 4. Playback clicks at recorded screen coordinates — put the target window in the same place first, or record with **MOUSE MOVES** enabled for absolute positioning.
 
@@ -111,7 +113,7 @@ All four are re-bindable in **Settings** (click **CAPTURE**, press the combo) an
 
 ```
 nth-macro-studio/
-├─ preview/index.html            ← standalone UI (open in Chrome, mock engine)
+├─ preview/index.html            ← same UI file; outside the exe it shows the gate notice
 ├─ src/NthMacroStudio/
 │  ├─ Program.cs / AppWindow.cs  ← WinForms + WebView2 host, 850×520
 │  ├─ Bridge.cs                  ← JS ⇄ C# message router

@@ -1,4 +1,4 @@
-NTH MACRO STUDIO v2.01 — QUICK START
+NTH MACRO STUDIO v2.02 — QUICK START
 ====================================
 
 STARTING THE APP
@@ -9,6 +9,13 @@ STARTING THE APP
 3. If a dialog says "WebView2 Runtime required": click OK, Microsoft's
    installer page opens, run MicrosoftEdgeWebview2Setup.exe (free, ~2 min,
    one time only), then start NTH Macro Studio again.
+
+NO DEMO MODE — NO PREVIEW ENGINE
+--------------------------------
+There is exactly one engine in this program: the real one. It records your
+keyboard and mouse with Windows low-level hooks and replays with SendInput.
+Any copy of this interface that is not running inside NTH Macro Studio.exe
+shows a notice instead of a fake tool.
 
 WHAT THIS TOOL REALLY DOES (no placeholders)
 --------------------------------------------

@@ -100,12 +100,46 @@ namespace NthMacroStudio
                 await _webView.EnsureCoreWebView2Async(environment);
 
                 var wwwroot = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                if (!Directory.Exists(wwwroot))
+                {
+                    StartupLog("FATAL: wwwroot missing at " + wwwroot);
+                    MessageBox.Show(this,
+                        "The installation is incomplete: the 'wwwroot' folder is missing next to NTH Macro Studio.exe.\n\n" +
+                        "Fix: extract the WHOLE .zip to a folder first (right-click → Extract All), then run the exe from that folder — do not run it from inside the .zip window.",
+                        "NTH Macro Studio — incomplete installation",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Close();
+                    return;
+                }
+
+                // Wire events BEFORE navigating so no early message can be lost.
+                _webView.CoreWebView2.WebMessageReceived += OnWebMessage;
+                _webView.CoreWebView2.NavigationCompleted += (s, e) =>
+                {
+                    StartupLog($"navigation completed success={e.IsSuccess} http={e.HttpStatusCode} err={e.WebErrorStatus}");
+                    if (e.IsSuccess)
+                    {
+                        // Proactive handshake: the app pushes app:ready itself —
+                        // the UI never depends on a request/reply round-trip.
+                        Bridge.PushReady(this);
+                    }
+                    else
+                    {
+                        MessageBox.Show(this,
+                            "The interface could not be loaded.\n\nTechnical: " + e.WebErrorStatus +
+                            "\n\nDetails were logged to:\n" + StartupLogPath(),
+                            "NTH Macro Studio — interface failed to load",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Close();
+                    }
+                };
+
+                StartupLog("navigating UI (nth.local) …");
                 _webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
                     "nth.local", wwwroot, CoreWebView2HostResourceAccessKind.Allow);
                 _webView.CoreWebView2.Navigate("https://nth.local/index.html");
                 _webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
                 _webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
-                _webView.CoreWebView2.WebMessageReceived += OnWebMessage;
             }
             catch (Exception ex)
             {
@@ -157,7 +191,7 @@ namespace NthMacroStudio
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "NTHMacroStudio", "logs", "startup.log");
 
-        private static void StartupLog(string line)
+        internal static void StartupLog(string line)
         {
             try
             {

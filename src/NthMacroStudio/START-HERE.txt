@@ -1,4 +1,4 @@
-NTH MACRO STUDIO v2.02 — QUICK START
+NTH MACRO STUDIO v2.03 — QUICK START
 ====================================
 
 STARTING THE APP
@@ -43,7 +43,7 @@ RUN REQUIREMENTS (this .zip)
 
 NO .NET WANTED?
 ---------------
-Use the other zip: NTH-Macro-Studio-v2.01-win-x64-selfcontained.zip
+Use the other zip: NTH-Macro-Studio-v2.03-win-x64-selfcontained.zip
 It bundles the .NET 8 runtime itself (still needs the WebView2 Runtime above).
 
 GLOBAL HOTKEYS (defaults, changeable in SETTINGS)
@@ -57,7 +57,9 @@ IF STARTUP STILL FAILS
 ----------------------
 Open the log at:
   %LocalAppData%\NTHMacroStudio\logs\startup.log
-It records the exact WebView2 version found (or the reason it was not found).
+It records the WebView2 version found, navigation results and every engine
+handshake step — the app pushes its "engine ready" signal to the window
+itself, so a lost reply can no longer leave the UI stuck.
 
 LEGITIMATE USE
 --------------

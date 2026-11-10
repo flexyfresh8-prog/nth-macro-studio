@@ -240,7 +240,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
     </nav>
     <div class="side-foot">
       <div class="eng" id="engChip"><span class="dot"></span><span id="engTxt">CONNECTING</span></div>
-      <div class="ver" id="verTxt">v2.0.2</div>
+      <div class="ver" id="verTxt">v2.0.3</div>
     </div>
   </aside>
 
@@ -427,7 +427,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
         </div>
         <div class="card about" style="margin-top:10px">
           <div class="lbl">ABOUT</div>
-          <p><b>NTH Macro Studio v2.0.2</b> — legitimate Windows automation for repetitive tasks: text expansion, form filling, UI testing, accessibility workflows. Recording uses low-level input hooks only while armed; playback uses SendInput, the standard user-session automation channel. No DLL injection, no memory access, no driver interposition, no network. Use only on machines and software where you are authorized to automate input.</p>
+          <p><b>NTH Macro Studio v2.0.3</b> — legitimate Windows automation for repetitive tasks: text expansion, form filling, UI testing, accessibility workflows. Recording uses low-level input hooks only while armed; playback uses SendInput, the standard user-session automation channel. No DLL injection, no memory access, no driver interposition, no network. Use only on machines and software where you are authorized to automate input.</p>
         </div>
       </section>
 
@@ -452,7 +452,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;heigh
 </div>
 <script>
 /* ============================================================
-   NTH Macro Studio — monochrome UI v2.0.2
+   NTH Macro Studio — monochrome UI v2.0.3
    Talks ONLY the real WebView2 bridge (the native engine inside
    NTH Macro Studio.exe). It never fakes or simulates anything:
    without the desktop app this page shows the gate notice.
@@ -1024,8 +1024,14 @@ function showGate(note){
   const n = $("#gateNote"); if(n) n.textContent = note || "";
 }
 if(window.chrome?.webview){
-  send("app:hello");   // the native engine answers app:ready and unlocks the UI
-  setTimeout(()=>{ if(!S.engine) showGate("engine did not answer — restart NTH Macro Studio.exe"); }, 5000);
+  let hellos = 0;
+  const hi = () => { if(!S.engine){ hellos++; send("app:hello"); } };
+  hi();                      // ask; the app also pushes app:ready on its own
+  setInterval(hi, 1500);     // keep asking until the engine answers
+  setTimeout(()=>{
+    if(!S.engine) showGate("engine did not answer after " + hellos +
+      " attempts — restart NTH Macro Studio.exe. Still stuck? Check %LocalAppData%\\NTHMacroStudio\\logs\\startup.log");
+  }, 6000);
 }else{
   showGate("opened outside the desktop app — there is no engine here, by design");
 }

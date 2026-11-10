@@ -52,14 +52,8 @@ namespace NthMacroStudio
             switch (type)
             {
                 case "app:hello":
-                    Post("app:ready", new
-                    {
-                        version = VersionText(),
-                        platform = "windows",
-                        macrosPath = MacroStore.Dir,
-                        settings = Settings.Current,
-                        preview = false
-                    });
+                    AppWindow.StartupLog("hello received from UI — posting app:ready");
+                    Post("app:ready", BuildReadyPayload());
                     break;
 
                 case "macro:list":
@@ -239,6 +233,45 @@ namespace NthMacroStudio
                     Post("hotkey:triggered", new { slot });
                     break;
             }
+        }
+
+        /// <summary>
+        /// Proactive handshake: push app:ready to the UI without waiting for
+        /// app:hello. Called on NavigationCompleted so the handshake cannot be
+        /// lost to timing; answering app:hello stays supported as well.
+        /// </summary>
+        public static void PushReady(AppWindow win)
+        {
+            _win = win;
+            Wire();
+            Post("app:ready", BuildReadyPayload());
+            AppWindow.StartupLog("app:ready pushed to UI");
+        }
+
+        private static object BuildReadyPayload()
+        {
+            string macrosPath;
+            try { macrosPath = MacroStore.Dir; }
+            catch (Exception ex)
+            {
+                AppWindow.StartupLog("MacroStore.Dir failed: " + ex.Message);
+                macrosPath = "";
+            }
+            object settings;
+            try { settings = Settings.Current; }
+            catch (Exception ex)
+            {
+                AppWindow.StartupLog("Settings.Current failed: " + ex.Message);
+                settings = null;
+            }
+            return new
+            {
+                version = VersionText(),
+                platform = "windows",
+                macrosPath,
+                settings,
+                preview = false
+            };
         }
 
         private static void Post(string type, object payload)

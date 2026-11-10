@@ -21,6 +21,8 @@ namespace NthMacroStudio
         public bool ReduceMotion { get; set; } = false;
         public bool BackgroundEffects { get; set; } = true;
         public int MouseMoveSampleMs { get; set; } = 40;
+        public double DefaultSpeed { get; set; } = 1;
+        public int DefaultLoops { get; set; } = 1;
     }
 
     public static class Settings

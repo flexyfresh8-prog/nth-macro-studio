@@ -28,7 +28,7 @@ Envelope (both directions): `{ "type": "domain:action", "payload": { ... } }`, c
 | `macro:import` | `{json}` | Import a macro JSON string |
 | `record:start` | `{captureKeyboard, captureMouseClicks, captureMouseMoves, mouseMoveSampleMs, delayMode}` | Arm system-wide recording |
 | `record:pause` / `record:resume` | `{}` | Pause/resume capture |
-| `record:stop` | `{}` | Stop + save, returns the macro |
+| `record:stop` | `{}` or `{save:false}` | Stop + save (default). Pass `save:false` to capture without writing a macro file (used by the Extras input monitor) |
 | `play:start` | `{macroId, loops, speed}` | Start playback (`loops: 0` = infinite) |
 | `play:pause` / `play:resume` | `{}` | Pause/resume playback |
 | `play:stop` | `{}` | Stop playback |
@@ -40,7 +40,7 @@ Envelope (both directions): `{ "type": "domain:action", "payload": { ... } }`, c
 
 | Type | Payload |
 | --- | --- |
-| `app:ready` | `{version, platform:"windows", macrosPath, preview:false}` |
+| `app:ready` | `{version, platform:"windows", macrosPath, settings, preview:false}` |
 | `macro:list` | `{macros:[Macro]}` |
 | `macro:saved` | `{macro}` |
 | `macro:deleted` | `{id}` |

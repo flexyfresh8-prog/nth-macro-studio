@@ -57,6 +57,7 @@ namespace NthMacroStudio
                         version = VersionText(),
                         platform = "windows",
                         macrosPath = MacroStore.Dir,
+                        settings = Settings.Current,
                         preview = false
                     });
                     break;
@@ -120,9 +121,12 @@ namespace NthMacroStudio
 
                 case "record:stop":
                 {
+                    // save:false powers the Extras input monitor — capture without
+                    // writing a macro file. Default stays true for real recordings.
+                    bool save = Bool(payload, "save", true);
                     var macro = HookRecorder.Stop();
-                    MacroStore.Save(macro);
-                    Post("record:stopped", new { macro, saved = true });
+                    if (save) MacroStore.Save(macro);
+                    Post("record:stopped", new { macro, saved = save });
                     break;
                 }
 

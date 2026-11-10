@@ -10,7 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>NTH Macro Studio</AssemblyName>
     <RootNamespace>NthMacroStudio</RootNamespace>
-    <Version>1.1.0</Version>
+    <Version>2.0.0</Version>
     <Product>NTH Macro Studio</Product>
     <Company>NTH Studio</Company>
     <Authors>NTH Macro Studio Contributors</Authors>

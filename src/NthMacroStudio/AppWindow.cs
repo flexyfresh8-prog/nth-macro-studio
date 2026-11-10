@@ -26,10 +26,11 @@ namespace NthMacroStudio
         public AppWindow()
         {
             Text = "NTH Macro Studio";
-            ClientSize = new System.Drawing.Size(1440, 900);
-            MinimumSize = new System.Drawing.Size(1180, 740);
+            ClientSize = new System.Drawing.Size(850, 520);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
-            BackColor = System.Drawing.Color.FromArgb(11, 14, 20);
+            BackColor = System.Drawing.Color.FromArgb(10, 10, 10);
             Icon = LoadAppIcon();
             Controls.Add(_webView);
             Shown += OnShownAsync;
